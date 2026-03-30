@@ -3,221 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>스택버거 - 게임 화면 (PC용)</title>
+    <title>스택버거 - 진짜 햄버거 만들기! (PC용)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
 
         body {
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             background-color: #fdf6e3;
             font-family: 'Jua', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #333;
-            user-select: none; 
-            -webkit-user-select: none;
+            display: flex; flex-direction: column; align-items: center;
+            color: #333; user-select: none; -webkit-user-select: none;
         }
 
-        /* 상단 점수와 타이머 (넓게) */
+        /* --- 상단 헤더 --- */
         .header {
-            width: 100%;
-            max-width: 850px; /* 컴퓨터 화면에 맞게 넓혔어요 */
-            display: flex;
-            justify-content: space-between;
-            padding: 20px 30px;
-            box-sizing: border-box;
-            font-size: 1.8em;
-            background-color: white;
-            border-bottom: 5px solid #ff9800;
+            width: 100%; max-width: 900px;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 30px; box-sizing: border-box;
+            background-color: white; border-bottom: 5px solid #ff9800;
+            border-radius: 0 0 20px 20px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
         }
 
-        .score-box { color: #e65100; }
-        .time-box { color: #d32f2f; }
+        .score-box { color: #e65100; font-size: 1.8em; }
+        .time-box { color: #d32f2f; font-size: 1.8em; }
+        #time { font-variant-numeric: tabular-nums; } /* 숫자 폭 고정 */
 
-        /* 🌟 핵심 변경! 가로로 나란히 배치하는 컨테이너 🌟 */
+        /* --- 메인 게임 영역 (가로 배치) --- */
         .game-container {
-            display: flex;
-            flex-direction: row; /* 가로(양옆)로 정렬 */
-            justify-content: center;
-            align-items: flex-start; /* 위쪽 줄 맞춤 */
-            margin-top: 40px;
-            width: 100%;
-            max-width: 900px;
-            gap: 50px; /* 주문서와 카드 사이의 넓은 간격 */
-            padding: 0 20px;
-            box-sizing: border-box;
+            display: flex; flex-direction: row; justify-content: center; align-items: flex-start;
+            width: 100%; max-width: 1000px; gap: 40px;
+            padding: 0 20px; box-sizing: border-box;
         }
 
-        /* 왼쪽: 햄버거 주문서 (레시피) */
+        /* --- 왼쪽: 주문서 --- */
         .recipe-board {
-            background-color: #fff8e1;
-            border: 4px dashed #ffb74d;
-            border-radius: 20px;
-            padding: 20px;
-            width: 250px; /* 너비 고정 */
-            text-align: center;
+            background-color: #fff8e1; border: 5px dashed #ffb74d; border-radius: 25px;
+            padding: 20px; width: 280px; text-align: center;
             box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            position: sticky; top: 20px; /* 스크롤해도 따라오게 */
         }
 
-        .recipe-board h3 {
-            margin: 0 0 15px 0;
-            color: #f57c00;
-            font-size: 1.5em;
-            line-height: 1.3;
-        }
-
+        .recipe-board h3 { margin: 0 0 15px 0; color: #f57c00; font-size: 1.6em; line-height: 1.3; }
+        
         .recipe-items {
-            display: flex;
-            flex-direction: column-reverse; /* 아래에서 위로 쌓이게 */
-            align-items: center;
-            gap: 8px;
+            display: flex; flex-direction: column-reverse; /* 아래에서 위로 */
+            align-items: center; gap: 3px; /* 재료 사이 간격을 좁혀서 쌓인 느낌 줌 */
+            min-height: 300px; justify-content: flex-start;
         }
 
-        .recipe-item {
-            font-size: 3em; /* 이모지 크기 키움 */
-            width: 80px;
-            height: 80px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: white;
-            border-radius: 15px;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+        /* 주문서의 각 재료 그림 스타일 */
+        .recipe-item-img {
+            width: 120px; height: auto; /* 가로폭을 넓혀서 햄버거답게 */
             transition: transform 0.3s, opacity 0.3s;
+            filter: drop-shadow(0 3px 2px rgba(0,0,0,0.1));
         }
 
-        .recipe-item.current {
-            transform: scale(1.15);
-            border: 5px solid #4caf50;
-            box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
+        /* 찾아야 할 차례 강조 (통통 튀는 효과 추가) */
+        .recipe-item-img.current {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 10px rgba(76, 175, 80, 0.7));
             z-index: 10;
+            animation: bun-bounce 0.6s infinite alternate;
         }
 
-        .recipe-item.found {
-            opacity: 0.4;
-            transform: scale(0.9);
+        @keyframes bun-bounce {
+            from { transform: scale(1.1) translateY(0); }
+            to { transform: scale(1.1) translateY(-5px); }
         }
 
-        /* 오른쪽: 카드 그리드 (바닥에 깔린 재료들) */
+        /* 이미 찾은 재료는 흐리게 */
+        .recipe-item-img.found { opacity: 0.25; transform: scale(0.9); animation: none; }
+
+        /* --- 오른쪽: 카드 그리드 --- */
         .card-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr); 
-            gap: 15px; /* 카드 사이 간격 넓힘 */
-            width: 500px; /* 카드 영역 너비 고정 */
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;
+            width: 580px; /* PC에 맞게 넓힘 */
         }
 
-        .card {
-            aspect-ratio: 1 / 1;
-            perspective: 1000px;
-            cursor: pointer;
-        }
-
+        .card { aspect-ratio: 1.1 / 1; perspective: 1000px; cursor: pointer; } /* 약간 가로로 긴 카드 */
         .card-inner {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            transition: transform 0.5s;
-            transform-style: preserve-3d;
+            width: 100%; height: 100%; position: relative;
+            transition: transform 0.5s; transform-style: preserve-3d;
         }
 
-        .card.flipped .card-inner {
-            transform: rotateY(180deg);
-        }
+        .card.flipped .card-inner { transform: rotateY(180deg); }
 
         .card-front, .card-back {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            backface-visibility: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 4em; /* 카드 안의 그림도 큼직하게 */
-            border-radius: 15px;
-            box-shadow: 0 5px 0 rgba(0,0,0,0.15);
+            width: 100%; height: 100%; position: absolute; backface-visibility: hidden;
+            border-radius: 15px; box-shadow: 0 6px 0 rgba(0,0,0,0.15);
+            display: flex; justify-content: center; align-items: center; padding: 10px; box-sizing: border-box;
         }
 
+        /* 카드 뒷면 (숨겨진 상태) */
         .card-back {
-            background-color: #ffb74d;
-            border: 3px solid #f57c00;
-            background-image: repeating-linear-gradient(45deg, transparent, transparent 15px, rgba(255,255,255,0.2) 15px, rgba(255,255,255,0.2) 30px);
+            background-color: #ffb74d; border: 4px solid #f57c00;
+            background-image: repeating-linear-gradient(45deg, transparent, transparent 15px, rgba(255,255,255,0.15) 15px, rgba(255,255,255,0.15) 30px);
         }
 
-        .card-front {
-            background-color: white;
-            border: 3px solid #e0e0e0;
-            transform: rotateY(180deg);
-        }
+        /* 카드 앞면 (재료 그림) */
+        .card-front { background-color: white; border: 4px solid #e0e0e0; transform: rotateY(180deg); }
+        
+        /* 카드 안의 재료 그림 크기 조정 */
+        .card-front svg { width: 90%; height: auto; max-height: 90%; }
 
-        /* 게임 오버 화면 */
+        /* --- 게임 오버 화면 --- */
         .game-over {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.8);
-            color: white;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.85); color: white;
+            flex-direction: column; justify-content: center; align-items: center; z-index: 100;
         }
-
-        .game-over h2 { font-size: 5em; margin: 0; color: #ffeb3b; }
+        .game-over h2 { font-size: 5em; margin: 0; color: #ffeb3b; text-shadow: 0 5px 0 #e65100; }
         .game-over p { font-size: 2.5em; margin: 20px 0; }
         .restart-btn {
-            background-color: #4caf50;
-            color: white;
-            border: none;
-            padding: 15px 50px;
-            font-size: 1.8em;
-            border-radius: 30px;
-            cursor: pointer;
-            font-family: 'Jua', sans-serif;
-            transition: transform 0.2s;
+            background-color: #4caf50; color: white; border: none; padding: 15px 50px;
+            font-size: 1.8em; border-radius: 50px; cursor: pointer; font-family: 'Jua', sans-serif;
+            box-shadow: 0 6px 0 #2e7d32; transition: all 0.1s;
         }
-        .restart-btn:hover { transform: scale(1.1); }
+        .restart-btn:hover { background-color: #43a047; transform: translateY(-3px); }
+        .restart-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #2e7d32; }
+
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="score-box">👨‍🍳 요리사 모자: <span id="score">0</span></div>
-        <div class="time-box">⏰ 남은 시간: <span id="time">60</span>초</div>
+        <div class="score-box">👨‍🍳 요리사 모자: <span id="score">0</span>개</div>
+        <div class="time-box">⏰ 시간: <span id="time">60</span>초</div>
     </div>
 
     <div class="game-container">
-        
         <div class="recipe-board">
-            <h3>👇 이번 주문!<br>(맨 아래부터 찾아요)</h3>
+            <h3>👇 이번 주문!<br>(아래부터 쌓아요)</h3>
             <div class="recipe-items" id="recipe-container">
                 </div>
         </div>
 
         <div class="card-grid" id="grid-container">
             </div>
-
     </div>
 
     <div class="game-over" id="game-over-screen">
-        <h2>시간 종료!</h2>
-        <p>내가 모은 요리사 모자: <span id="final-score">0</span>개 👨‍🍳</p>
-        <button class="restart-btn" onclick="location.reload()">다시 하기</button>
+        <h2>영업 종료!</h2>
+        <p>오늘 만든 햄버거: <span id="final-score">0</span>개 🍔</p>
+        <button class="restart-btn" onclick="location.reload()">다시 문 열기</button>
     </div>
 
     <script>
-        // 자바스크립트 로직은 이전과 완벽히 동일합니다.
-        const ingredients = ['🍞', '🥩', '🧀', '🥬', '🍅', '🧅'];
+        // --- 🎨 햄버거 재료 그림 데이터 (SVG 코딩) ---
+        // 이모지 대신 직접 그린 그림을 사용합니다.
+        const burgerGraphics = {
+            bun_bottom: `<svg viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg"><path d="M5,5 C5,25 115,25 115,5 Z" fill="#e29b4f" stroke="#c6843d" stroke-width="3"/></svg>`,
+            bun_top: `<svg viewBox="0 0 120 60" xmlns="http://www.w3.org/2000/svg"><path d="M5,55 C5,10 115,10 115,55 Z" fill="#e29b4f" stroke="#c6843d" stroke-width="3"/><circle cx="30" cy="30" r="2" fill="#fdf6e3"/><circle cx="60" cy="25" r="2" fill="#fdf6e3"/><circle cx="90" cy="35" r="2" fill="#fdf6e3"/></svg>`,
+            patty: `<svg viewBox="0 0 120 30" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="110" height="20" rx="10" fill="#795548" stroke="#5d4037" stroke-width="3"/></svg>`,
+            cheese: `<svg viewBox="0 0 120 20" xmlns="http://www.w3.org/2000/svg"><path d="M5,5 L115,5 L105,25 L15,25 Z" fill="#ffeb3b" stroke="#fbc02d" stroke-width="2"/></svg>`,
+            lettuce: `<svg viewBox="0 0 120 25" xmlns="http://www.w3.org/2000/svg"><path d="M5,15 Q30,0 60,15 Q90,30 115,15 Q90,5 60,20 Q30,35 5,15 Z" fill="#8bc34a" stroke="#689f38" stroke-width="2"/></svg>`,
+            tomato: `<svg viewBox="0 0 120 30" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="5" width="100" height="20" rx="10" fill="#f44336" stroke="#d32f2f" stroke-width="3"/><circle cx="40" cy="15" r="3" fill="#ffcdd2"/><circle cx="80" cy="15" r="3" fill="#ffcdd2"/></svg>`
+        };
+
+        // 중간에 들어갈 랜덤 재료 목록 (빵 제외)
+        const middleIngredients = ['patty', 'cheese', 'lettuce', 'tomato'];
         
+        // --- 게임 상태 변수 ---
         let score = 0;
         let timeLeft = 60;
-        let currentRecipe = [];
-        let recipeStep = 0; 
-        let isBoardLocked = false; 
+        let currentRecipe = []; // 현재 주문 재료 ID 배열
+        let recipeStep = 0; // 현재 찾아야 할 순서 (인덱스)
+        let isBoardLocked = false;
         let timerInterval;
 
+        // HTML 요소 가져오기
         const scoreEl = document.getElementById('score');
         const timeEl = document.getElementById('time');
         const recipeContainer = document.getElementById('recipe-container');
@@ -225,18 +181,16 @@
         const gameOverScreen = document.getElementById('game-over-screen');
         const finalScoreEl = document.getElementById('final-score');
 
+        // 게임 시작 함수
         function startGame() {
-            score = 0;
-            timeLeft = 60;
-            scoreEl.innerText = score;
-            timeEl.innerText = timeLeft;
-            
+            score = 0; timeLeft = 60;
+            scoreEl.innerText = score; timeEl.innerText = timeLeft;
             clearInterval(timerInterval);
             timerInterval = setInterval(updateTime, 1000);
-            
-            makeNewBurger();
+            makeNewBurger(); // 첫 번째 주문 생성
         }
 
+        // 1초마다 시간 줄이기
         function updateTime() {
             timeLeft--;
             timeEl.innerText = timeLeft;
@@ -246,100 +200,136 @@
             }
         }
 
+        // 🌟 요청하신 부분: 새로운 랜덤 난이도 햄버거 주문 만들기 🌟
         function makeNewBurger() {
             recipeStep = 0;
             currentRecipe = [];
             
-            currentRecipe.push('🍞'); 
-            for(let i=0; i<3; i++) {
-                const randomItem = ingredients[Math.floor(Math.random() * (ingredients.length - 1)) + 1];
-                currentRecipe.push(randomItem);
-            }
-            currentRecipe.push('🍞'); 
+            // 1. 맨 아래 빵은 무조건 넣기
+            currentRecipe.push('bun_bottom'); 
 
-            renderRecipe();
-            setupBoard();
+            // 2. 🌟 중간 재료 개수를 랜덤으로 정하기 (난이도 랜덤) 🌟
+            // 최소 1개 ~ 최대 4개의 재료가 랜덤으로 쌓입니다. (총 3~6층 햄버거)
+            const ingredientCount = Math.floor(Math.random() * 4) + 1; 
+
+            for(let i=0; i < ingredientCount; i++) {
+                // 고기, 치즈, 야채 중 하나를 랜덤으로 골라서 추가
+                const randomId = middleIngredients[Math.floor(Math.random() * middleIngredients.length)];
+                currentRecipe.push(randomId);
+            }
+
+            // 3. 맨 위 빵은 무조건 넣기
+            currentRecipe.push('bun_top'); 
+
+            renderRecipe(); // 주문서 그리기
+            setupBoard();   // 카드 새로 깔기
         }
 
+        // 왼쪽 주문서에 햄버거 그림 쌓기
         function renderRecipe() {
             recipeContainer.innerHTML = '';
-            currentRecipe.forEach((item, index) => {
+            currentRecipe.forEach((id, index) => {
                 const div = document.createElement('div');
-                div.className = 'recipe-item';
-                div.innerText = item;
+                div.className = 'recipe-item-img'; // CSS 클래스
+                div.innerHTML = burgerGraphics[id]; // SVG 코드 넣기
+                
+                // 맨 아래(첫 번째) 재료부터 찾도록 강조
                 if (index === 0) div.classList.add('current');
+                
+                // 아래서부터 쌓이도록 보이게 처리 (flex-direction: column-reverse와 함께 작동)
                 recipeContainer.appendChild(div);
             });
         }
 
+        // 오른쪽 바닥에 카드 깔기 (16장)
         function setupBoard() {
             gridContainer.innerHTML = '';
             isBoardLocked = false;
 
+            // 1. 현재 주문에 필요한 정답 재료들을 먼저 가져옴
             let boardItems = [...currentRecipe];
 
+            // 2. 남은 자리는 무작위 재료로 가득 채움 (총 16개)
+            const allItemIds = Object.keys(burgerGraphics); // 모든 재료 ID 목록
             while(boardItems.length < 16) {
-                const randomItem = ingredients[Math.floor(Math.random() * ingredients.length)];
-                boardItems.push(randomItem);
+                const randomId = allItemIds[Math.floor(Math.random() * allItemIds.length)];
+                boardItems.push(randomId);
             }
 
+            // 3. 카드 순서 섞기 (위치 랜덤)
             boardItems.sort(() => Math.random() - 0.5);
 
-            boardItems.forEach(item => {
+            // 4. 화면에 카드 만들기
+            boardItems.forEach(itemId => {
                 const card = document.createElement('div');
                 card.className = 'card';
+                // itemId를 카드의 데이터 속성에 저장 (나중에 확인용)
                 card.innerHTML = `
-                    <div class="card-inner">
+                    <div class="card-inner" data-id="${itemId}">
                         <div class="card-back"></div>
-                        <div class="card-front">${item}</div>
+                        <div class="card-front">${burgerGraphics[itemId]}</div>
                     </div>
                 `;
                 
-                card.addEventListener('click', () => handleCardClick(card, item));
+                // 클릭 이벤트 달기
+                card.addEventListener('click', () => handleCardClick(card));
                 gridContainer.appendChild(card);
             });
         }
 
-        function handleCardClick(card, item) {
+        // 카드를 클릭했을 때 규칙
+        function handleCardClick(card) {
+            // 다른 카드가 뒤집히는 중이거나, 이미 맞춰진 카드면 무시
             if (isBoardLocked || card.classList.contains('flipped') || card.classList.contains('matched')) return;
 
-            card.classList.add('flipped');
+            card.classList.add('flipped'); // 카드 뒤집기
+            
+            const clickedId = card.querySelector('.card-inner').dataset.id;
+            const targetId = currentRecipe[recipeStep]; // 지금 찾아야 할 정답 ID
 
-            if (item === currentRecipe[recipeStep]) {
+            if (clickedId === targetId) {
+                // ✅ 정답!
                 card.classList.add('matched'); 
                 
-                const recipeElements = recipeContainer.children;
-                recipeElements[recipeStep].classList.remove('current');
-                recipeElements[recipeStep].classList.add('found');
+                // 주문서 업데이트 (찾은 건 흐리게, 다음 건 강조)
+                const recipeImgs = recipeContainer.children;
+                recipeImgs[recipeStep].classList.remove('current');
+                recipeImgs[recipeStep].classList.add('found');
                 
-                recipeStep++; 
+                recipeStep++; // 다음 단계로
 
+                // 🍔 햄버거 완성!
                 if (recipeStep === currentRecipe.length) {
                     isBoardLocked = true;
                     setTimeout(() => {
                         score++;
                         scoreEl.innerText = score;
-                        alert('🍔 햄버거 완성! 멋진데요?'); 
-                        makeNewBurger(); 
-                    }, 500);
+                        // 아이들을 위한 칭찬 팝업 (원하시면 지울 수 있습니다)
+                        alert('🍔 우와! 맛있는 햄버거 완성! 멋져요!'); 
+                        makeNewBurger(); // 다음 주문
+                    }, 600);
                 } else {
-                    recipeElements[recipeStep].classList.add('current');
+                    // 다음 재료 통통 튀게 강조
+                    recipeImgs[recipeStep].classList.add('current');
                 }
 
             } else {
+                // ❌ 오답...
                 isBoardLocked = true; 
                 setTimeout(() => {
-                    card.classList.remove('flipped'); 
+                    card.classList.remove('flipped'); // 다시 덮기
                     isBoardLocked = false; 
-                }, 800); 
+                }, 900); // 아이들이 위치를 기억할 시간 (0.9초)
             }
         }
 
+        // 게임 종료
         function endGame() {
             gameOverScreen.style.display = 'flex';
             finalScoreEl.innerText = score;
         }
 
+        // 페이지 열리면 게임 시작
         window.onload = startGame;
     </script>
 </body>
