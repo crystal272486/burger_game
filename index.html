@@ -5,40 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>스택버거 - 그림 찾기 게임</title>
     <style>
-        /* 아이들이 좋아하는 귀여운 폰트 */
         @import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
 
         body {
-            margin: 0;
-            padding: 0;
-            background-color: #fdf6e3; /* 맛있는 빵색 배경 */
+            margin: 0; padding: 0;
+            background-color: #fdf6e3; 
             font-family: 'Jua', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            color: #333;
-            overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; color: #333; overflow: hidden;
         }
 
         .main-box {
-            background-color: white;
-            border-radius: 30px;
-            padding: 30px;
+            background-color: white; border-radius: 30px; padding: 30px;
             box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-            width: 90%;
-            max-width: 450px;
-            text-align: center;
-            border: 8px solid #ff9800; /* 맛있는 주황색 테두리 */
-            position: relative;
+            width: 90%; max-width: 500px; text-align: center;
+            border: 8px solid #ff9800; position: relative;
         }
 
-        /* 메인 제목 햄버거 그림 */
         .logo-burger {
-            width: 120px;
-            height: 120px;
-            margin-bottom: -10px;
-            /* 햄버거가 둥둥 떠있는 효과 */
+            width: 120px; height: 120px; margin-bottom: -10px;
             animation: float 2s ease-in-out infinite;
         }
 
@@ -47,88 +32,40 @@
             50% { transform: translateY(-10px); }
         }
 
-        h1 {
-            color: #e65100;
-            font-size: 3.5em;
-            margin: 0 0 10px 0;
-            text-shadow: 2px 2px 0px #ffe0b2;
-        }
+        h1 { color: #e65100; font-size: 3.5em; margin: 0 0 10px 0; text-shadow: 2px 2px 0px #ffe0b2; }
 
         .sub-title {
-            color: #4caf50;
-            font-size: 1.4em;
-            margin-bottom: 20px;
-            background-color: #e8f5e9;
-            padding: 5px 15px;
-            border-radius: 20px;
+            color: #4caf50; font-size: 1.4em; margin-bottom: 20px;
+            background-color: #e8f5e9; padding: 5px 15px; border-radius: 20px;
             display: inline-block;
         }
 
-        /* 규칙 설명 부분 (아이콘+글씨) */
         .how-to-play {
-            background-color: #fff8e1;
-            padding: 15px;
-            border-radius: 20px;
-            margin-bottom: 25px;
-            text-align: left;
+            background-color: #fff8e1; padding: 15px; border-radius: 20px;
+            margin-bottom: 25px; text-align: left;
         }
 
-        .rule-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .rule-item:last-child {
-            margin-bottom: 0;
-        }
+        .rule-item { display: flex; align-items: center; margin-bottom: 15px; }
+        .rule-item:last-child { margin-bottom: 0; }
 
         .icon-box {
-            width: 45px;
-            height: 45px;
-            background-color: #ffb74d;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-right: 12px;
-            font-size: 1.5em;
-            box-shadow: 0 3px 0 rgba(0,0,0,0.1);
+            width: 45px; height: 45px; min-width: 45px;
+            background-color: #ffb74d; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            margin-right: 15px; font-size: 1.5em; box-shadow: 0 3px 0 rgba(0,0,0,0.1);
         }
 
-        .rule-text {
-            font-size: 1.15em;
-            line-height: 1.4;
-            flex: 1;
-        }
+        .rule-text { font-size: 1.2em; line-height: 1.4; flex: 1; }
+        .rule-text strong { color: #d84315; }
 
-        .rule-text strong {
-            color: #d84315;
-        }
-
-        /* 출발 버튼 */
         .start-btn {
-            background-color: #ff9800;
-            color: white;
-            border: none;
-            padding: 15px 60px;
-            font-size: 2em;
-            border-radius: 50px;
-            cursor: pointer;
-            font-family: 'Jua', sans-serif;
-            box-shadow: 0 8px 0 #ef6c00; /* 입체감 있는 버튼 */
-            transition: all 0.1s;
+            background-color: #ff9800; color: white; border: none; padding: 15px 60px;
+            font-size: 2em; border-radius: 50px; cursor: pointer; font-family: 'Jua', sans-serif;
+            box-shadow: 0 8px 0 #ef6c00; transition: all 0.1s;
         }
 
-        .start-btn:hover {
-            background-color: #f57c00;
-        }
-
-        /* 클릭했을 때 꾹 눌리는 효과 */
-        .start-btn:active {
-            box-shadow: 0 3px 0 #ef6c00;
-            transform: translateY(5px);
-        }
+        .start-btn:hover { background-color: #f57c00; }
+        .start-btn:active { box-shadow: 0 3px 0 #ef6c00; transform: translateY(5px); }
     </style>
 </head>
 <body>
@@ -151,24 +88,24 @@
     </svg>
 
     <h1>스택버거</h1>
-    <div class="sub-title">우와! 맛있는 햄버거 만들기 </div>
+    <div class="sub-title">우와! 스피드 햄버거 만들기 ⏱️</div>
     
     <div class="how-to-play">
         <div class="rule-item">
+            <div class="icon-box">🍔</div>
+            <div class="rule-text">왼쪽에 있는 <strong>햄버거 주문</strong>을 확인해요. 어려운 버거일수록 모자를 많이 줘요!</div>
+        </div>
+        <div class="rule-item">
+            <div class="icon-box">👇</div>
+            <div class="rule-text">바닥에 있는 카드를 뒤집어서 주문서의 <strong>맨 아래 재료부터</strong> 차례대로 찾아요.</div>
+        </div>
+        <div class="rule-item">
             <div class="icon-box">👀</div>
-            <div class="rule-text">위에 있는 <strong>햄버거 그림</strong>을 잘 봐요.</div>
+            <div class="rule-text">틀려도 괜찮아요! <strong>그림과 글씨</strong>가 어디 있었는지 잘 기억해둬요.</div>
         </div>
         <div class="rule-item">
-            <div class="icon-box">🧱</div>
-            <div class="rule-text">바닥에 있는 카드를 뒤집어서 <strong>맨 아래부터</strong> 차례대로 찾아요.</div>
-        </div>
-        <div class="rule-item">
-            <div class="icon-box">🧠</div>
-            <div class="rule-text">틀려도 괜찮아요! 그림이 어디 있었는지 <strong>기억하면</strong> 돼요.</div>
-        </div>
-        <div class="rule-item">
-            <div class="icon-box">🏆</div>
-            <div class="rule-text">시간 안에 많이 만들어서 <strong>요리왕</strong>이 되어봐요!</div>
+            <div class="icon-box">👨‍🍳</div>
+            <div class="rule-text">가장 빨리 <strong>모자 10개</strong>를 모으는 사람이 최고의 요리사!</div>
         </div>
     </div>
 
